@@ -55,3 +55,47 @@ SEVERITY = Medium
 
 The rule was validated by re-running Hydra and confirming the rule's test query returned a non-zero match count, then confirming an alert instance appeared under Alerts and Insights → Alerts.
 ![Alert detected in ELK](Alert-detected.png)
+
+# IOC Table
+IOC Type | 	Value | 	Context | 
+| :---: | :---: | :---: |
+Source IP | 	192.168.142.139 |	Brute-force origin (Kali attacker host)
+Target IP | 	paull-analyst (victim host) | 	SSH brute-force target
+Target service | 	SSH (port 22) | 	Brute-force target service
+Target account	| hrstaff1 | 	Account targeted in wordlist attack
+Pattern |	High-volume Failed password entries within a short window	| Indicative of automated credential-stuffing/brute-force tool
+Tool signature | 	Rapid sequential auth attempts, short-lived connections | 	Consistent with Hydra's connection behavior
+
+# Triage Note
+
+Alert: SSH Brute Force Detected
+
+Host: paull-analyst (Ubuntu-Victim)
+
+Source IP: 192.168.142.139
+
+Timestamp: 2026-08-10 6:22:50
+
+Failed Attempt Count: 3
+
+Successful Attempt: 1
+
+Verdict: True Positive
+
+Severity: Medium
+
+Next Steps:
+  - Block source IP at host/network firewall level
+  - Enable fail2ban on the victim host to auto-block repeat offenders
+  - Review the targeted account (hrstaff1) for any signs of successful compromise ( which was found )
+  - Enforce SSH key-based authentication going forward to eliminate password-guessing risk
+
+# Key Takeaway
+This lab highlights a core SIEM limitation and its mitigation: encrypted protocols like SSH don't reveal why a connection succeeded or failed at the network layer — but host-generated application logs (auth.log) do.
+Centralizing those logs and applying a simple threshold-based rule is enough to catch a live brute-force attack in near real-time, without needing to inspect packet contents. 
+This is standard SOC Tier-1 triage methodology: correlate a detection (the alert) with the underlying evidence (the raw log line) to reach a verdict.
+
+# Documented improvement for future iteration
+
+the Filebeat system module ```(filebeat modules enable system)``` was not enabled during this lab, meaning ```source.ip``` exists only as unstructured text inside message rather than a proper structured field.
+Enabling this module would allow the alert rule to group by ```source.ip``` directly, supporting per-attacker tracking and more precise alerting — a natural next step for this environment.
