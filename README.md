@@ -29,5 +29,29 @@ Query used to isolate brute-force activity: ```message: "failed password"```.
 paull-analyst sshd[6464]: Failed password for hrstaff1 from 192.168.142.139 port 40438 ssh2.
 
 Both Failed password  and a single Accepted password entry were visible, confirming the tool eventually succeeded once it reached the correct credential in the wordlist — mirroring what a real brute-force compromise looks like in logs.
-![ failed & accepted password detected in ELK log stash](Elk-log-failed-password.png)
-![failed & accepted password detected in ELK log stash](Elk-log-accepted-password.png)
+![failed & accepted password detected in ELK log stash](ELK-log-failed-password.png)
+![failed & accepted password detected in ELK log stash](ELK-log-accepted-password.png)
+
+
+# Alert Rule
+Built as a native Kibana Elasticsearch query rule (Stack Management → Rules and Connectors):
+
+| Setting   |  Value |
+| :---: | :---: |
+Rule type	 | Elasticsearch query
+Data view | 	filebeat-*
+Query |	message: "Failed password"
+Threshold | 	count() IS ABOVE 5
+Time window	 | 1 minute
+Check frequency	 | Every 1 minute
+
+Actions	None configured (no notification connector in lab environment)
+
+Conceptual logic:
+IF count(Failed password) > 5 WITHIN 60 seconds
+THEN raise alert "Possible SSH Brute Force"
+SEVERITY = Medium
+![Alert rule setup page](Alert-rule-setup.png)
+
+The rule was validated by re-running Hydra and confirming the rule's test query returned a non-zero match count, then confirming an alert instance appeared under Alerts and Insights → Alerts.
+![Alert detected in ELK](Alert-detected.png)
