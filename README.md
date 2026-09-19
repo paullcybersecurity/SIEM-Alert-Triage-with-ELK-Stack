@@ -90,12 +90,8 @@ Next Steps:
   - Review the targeted account (hrstaff1) for any signs of successful compromise ( which was found )
   - Enforce SSH key-based authentication going forward to eliminate password-guessing risk
 
-# Key Takeaway
-This lab highlights a core SIEM limitation and its mitigation: encrypted protocols like SSH don't reveal why a connection succeeded or failed at the network layer — but host-generated application logs (auth.log) do.
-Centralizing those logs and applying a simple threshold-based rule is enough to catch a live brute-force attack in near real-time, without needing to inspect packet contents. 
-This is standard SOC Tier-1 triage methodology: correlate a detection (the alert) with the underlying evidence (the raw log line) to reach a verdict.
 
-# Documented improvement for future iteration
+# Documented improvement for future hands on activity
 
-the Filebeat system module ```(filebeat modules enable system)``` was not enabled during this lab, meaning ```source.ip``` exists only as unstructured text inside message rather than a proper structured field.
-Enabling this module would allow the alert rule to group by ```source.ip``` directly, supporting per-attacker tracking and more precise alerting — a natural next step for this environment.
+the Filebeat system module ```(filebeat modules enable system)``` was not enabled during this lab, meaning ```source.ip``` exists only as unstructured text inside message rather than a proper structured field which was an error on my part.
+Enabling this module would allow the alert rule to group by ```source.ip``` directly, supporting per-attacker tracking and more precise alerting.
